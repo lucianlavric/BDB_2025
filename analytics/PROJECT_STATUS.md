@@ -2,15 +2,12 @@
 
 > Scope reminder: this file covers the analytics-track work in `analytics/`. Prediction-track work stays under `prediction/`.
 
-<<<<<<< HEAD
-=======
 ## 0. Repo & Branch Notes
 - The working copy under `big_data_bowl/` does not contain a `.git` directory, so branch history cannot be inspected from this drop.
 - We will treat this document plus dated output folders (`analytics/outputs/...`) as the authoritative project log until Git metadata is available.
 - If a repo snapshot with history arrives later, capture the branch summary (`git branch -vv`, `git log --oneline --decorate -n 20`) and reconcile it against these notes.
 - 2025-10-28: Initialized a lightweight git repo locally and created branch `feature/batch-runner-season` to track multi-game pipeline work.
 
->>>>>>> feature/batch-runner-season
 ## 1. What We Are Building
 - A measurement system for how much of the passing lane a defense can control while the ball is in flight.
 - A physics-plus-learning model that turns tracking coordinates into digestible metrics.
@@ -26,12 +23,8 @@
 ## 3. Implemented Components
 - **Single-game pipeline** (`dacs_one_game.py`): builds per-play snapshots, runs the physics + residual model, and persists JSON + CSV/Parquet outputs along with QA reports.
 - **Residual reach trainer** (`residual_model.py`): gathers defender samples and trains a neural network that scales longitudinal/lateral reach.
-<<<<<<< HEAD
-- **Visualizer** (`visualize_dacs.py`): produces animated GIFs with field overlays, metric panels, and outcome annotations.
-=======
 - **Visualizer** (`visualize_dacs.py`): produces animated GIFs with field overlays, metric panels, outcome annotations, and shrinking orb overlays that respect each defender's physics + residual reach and uncertainty bands.
 - **Season batch runner** (`batch_runner.py`): loops games, writes manifest + season Parquet, propagates uncertainty samples, and (new) can auto-render GIFs per play via `--make-gifs` so highlight assets stay in sync with JSON outputs.
->>>>>>> feature/batch-runner-season
 - **Existing outputs** (`analytics/outputs/...`): demo GIFs, per-play metrics, and quality checks.
 
 ## 4. Model Overview (with Math)
@@ -124,37 +117,9 @@
 6. **Enhance visual storytelling**  
    Add uncertainty shading, automatic callouts, comparison reels, and polish the presentation assets.
 
-## 8. Implementation Guide
-1. **Batch runner**
-   - Create `analytics/batch_runner.py`.
-   - Use `list_games_quick` to enumerate games and call `compute_dacs_for_game`.
-   - Persist manifest + rolled-up Parquet tables (per play, per defender, per team).
-<<<<<<< HEAD
-=======
-   - _New 2025-11-15_: `python -m analytics.batch_runner --games 2023090700 --uncertainty-samples 200 --make-gifs --gif-dir analytics/outputs/gifs --gif-skip-existing` regenerates JSON/CSV + manifest + season parquet and also re-renders GIFs (same Monte Carlo bands + shrinking defender orbs) for every processed play. CLI now resolves relative paths against `--root`, and GIF settings (fps/dpi/samples) are tunable via flags.
->>>>>>> feature/batch-runner-season
-2. **Outcome model calibration**
-   - Collect historical coverage metrics and pass outcomes from existing outputs.
-   - Train/validate a classifier or probabilistic regressor; save to `analytics/models/outcome_model.joblib`.
-   - Swap the heuristic block in `dacs_time_series` for model inference and log calibration metrics.
-<<<<<<< HEAD
-=======
-   - _Status 2025-11-14_: Dataset builder now ingests `analytics/outputs/dacs_batch/` (242 plays so far), `analytics/outcome_model.py` trains a multinomial logistic baseline (train log loss 0.97 / val 1.16) saved to `analytics/models/outcome_model.joblib`, and `dacs_one_game` records heuristic priors plus calibrated probabilities per play.
->>>>>>> feature/batch-runner-season
 3. **Uncertainty propagation**
    - Draw multiple reach samples per defender/time step; compute means and quantiles.
-   - Extend JSON/CSV schema to include interval columns; update GIFs with shaded ribbons.
-4. **Residual model R&D**
-   - Augment sample collection with fold IDs, run cross-validation, and report loss/MAE.
    - Prototype alternate models in `analytics/models/experiments/` and document improvements.
-<<<<<<< HEAD
-5. **Physics calibration**
-   - Analyze tracking data to infer realistic caps per position/coverage type.
-   - Update defaults or add lookup tables; re-run validation plays to confirm behavior.
-6. **Visualization refresh**
-   - Modularize overlays in `visualize_dacs.make_animation`.
-   - Produce curated highlight packages and integrate uncertainty visuals.
-=======
    - _Status 2025-11-14_: CLI now splits residual samples by game (default 80/20 train/val) and reports MAE for longitudinal/lateral scales. Latest run `python analytics/residual_model.py --game_limit 20 --samples_per_play 400 --hidden_layers 64,64 --val_fraction 0.2` produced 22,839 train / 5,388 val samples across 4 holdout games with MAE_long≈0.25(train)/0.87(val) and MAE_lat≈0.11(train)/0.36(val). Checkpoint saved to `analytics/models/residual_model.joblib`; next step is broader coverage + alternate models to bring down val error.
 5. **Physics calibration**
    - Analyze tracking data to infer realistic caps per position/coverage type.
@@ -164,28 +129,20 @@
    - Modularize overlays in `visualize_dacs.make_animation`.
    - Produce curated highlight packages and integrate uncertainty visuals.
    - _Status 2025-11-14_: Notebook `analytics/notebooks/visual_storytelling.ipynb` explores DACS bands, Player Share charts, and comparison layouts for future GIF upgrades.
->>>>>>> feature/batch-runner-season
 7. **Documentation and submission**
    - Write methodology + results summary.
    - Build dashboards (e.g., Streamlit) over season aggregates.
    - Provide reproducibility instructions (environment setup, CLI commands) for submission.
 
 ## 9. Ready-for-Submission Checklist
-<<<<<<< HEAD
-- [ ] Batch pipeline produces season-level tables and manifest.
-- [ ] Outcome model calibrated, evaluated, and integrated.
-=======
 - [x] Batch pipeline produces season-level tables and manifest. _(2025-11-14: `analytics/batch_runner.py` validated on full game; manifests + season parquet confirmed.)_
 - [x] Outcome model calibrated, evaluated, and integrated. _(Logistic baseline trained via `analytics/outcome_model.py`, joblib saved, and `dacs_one_game` now consumes calibrated probabilities while retaining heuristic priors for analysis.)_
->>>>>>> feature/batch-runner-season
 - [ ] Uncertainty bands present in JSON/CSV/GIF outputs.
 - [ ] Residual model experiments documented with validation metrics.
 - [ ] Physics parameters tuned from data (with supporting analysis).
 - [ ] Visualization package refreshed with storytelling assets.
 - [ ] Technical write-up and narrative deck complete.
 - [ ] Reproducibility instructions finalized (environment + commands).
-<<<<<<< HEAD
-=======
 
 ## 10. Immediate Next Actions
 1. **Batch runner skeleton (P1)**  
@@ -193,15 +150,6 @@
    - Persist a manifest JSON (game_id, play_count, wall_time, status) and roll up the per-play metrics into `outputs/season_play_metrics.parquet`.  
    - Definition of done: running on the Week 1 subset finishes without manual intervention and writes manifest + Parquet.  
    - _Status 2025-11-14_: Validated CLI via `python analytics/batch_runner.py --games 2023090700 --limit 1 --out analytics/outputs/dacs_batch --manifest analytics/outputs/batch_runner/test_manifest.jsonl --season-summary analytics/outputs/batch_runner/test_season.parquet`; run processed 58 plays, wrote JSONL manifest + Parquet summary (see `analytics/outputs/batch_runner/`). Next: scale to entire Week 1 and integrate into automation scripts.
-2. **Outcome probability calibration dataset (P1)**  
-    - Add a `collect_outcome_training_set()` helper in `dacs_one_game.py` (or a new `features/outcome_dataset.py`) that reads existing play JSON under `outputs/dacs/`, extracts the event probability triplets, and joins realized results from `supplementary_data.csv`.  
-    - Split into train/validation folds and persist to `analytics/data/outcome_training.parquet`; document feature columns in this file.  
-    - Definition of done: dataset saved with schema + README snippet, ready for modeling in `residual_model.py` or a sibling file.  
-    - _Status 2025-11-14_: CLI now rebuilds datasets from `analytics/outputs/dacs_batch/` (currently 7,676 plays), categorical/numeric expansions are encoded automatically, `analytics/outcome_model.py` trains a class-balanced multinomial model (val log-loss ≈0.33, per-class F1s: catch 0.94 / incomplete 0.87 / interception 0.73), and `dacs_one_game` feeds those features into inference so calibrated probabilities drive downstream metrics.
-3. **Uncertainty sampling hook (P2)**  
-   - _Status 2025-11-14_: Added `--uncertainty-samples` to both the compute function and `batch_runner`. When enabled, `dacs_time_series` draws Monte Carlo reach samples per defender/time, writes percentile bands (`dacs_series_lo/hi`) and records metadata under `uncertainty` in each JSON. CSV summaries now reflect true lo/hi values, so visualization can render ribbons.
-4. **Visualization polish (P2)**  
    - Refactor `visualize_dacs.make_animation` so overlays (corridor samples, defender labels, metrics panel) are modular functions; add template text for Player Share callouts and uncertainty ribbons.  
    - Export side-by-side comparison GIFs for plays `2023090700_4041` and `2023090700_1588` into `outputs/gifs/side_by_side/` for the write-up.  
    - Definition of done: GIF generation runs via `python visualize_dacs.py --game_id ... --play_id ... --style comparison` and produces both the legacy and enhanced artifacts.
->>>>>>> feature/batch-runner-season
